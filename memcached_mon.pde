@@ -59,6 +59,7 @@ void setup()
 
   processStats(false);
   showStatNums();
+  graph.setScale(stats);
 
   frameRate(12);
 }
@@ -66,7 +67,6 @@ void setup()
 void draw()
 {
   processStats();
-  graph.setScale(stats);
   graph.drawBox();
 
   strokeWeight(1.5);
