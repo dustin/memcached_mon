@@ -107,8 +107,8 @@ void processStats() {
 
 class Stat {
   int r, g, b;
-  // float min = 0, max = 0;
-  int prev = Integer.MIN_VALUE, prevDelta = 0;
+  // double min = 0, max = 0;
+  long prev = Integer.MIN_VALUE, prevDelta = 0;
   String name, stat;
   RingBuffer data;
 
@@ -123,8 +123,8 @@ class Stat {
   }
 
   public void add(Map stats) {
-    int v = Integer.parseInt((String)stats.get(stat));
-    if (!(data.size() == 0 && prev == Integer.MIN_VALUE)) {
+    long v = Long.parseLong((String)stats.get(stat));
+    if (!(data.size() == 0 && prev == Long.MIN_VALUE)) {
       prevDelta = v - prev;
       data.add(v - prev);
     }
@@ -138,8 +138,8 @@ class Graph
 {
   float m_gWidth, m_gHeight;
   float m_gLeft, m_gBottom, m_gRight, m_gTop;
-  float graphMultY;
-  float min, max;
+  double graphMultY;
+  double min, max;
 
   Graph(float x, float y, float w, float h)
   {
@@ -165,7 +165,7 @@ class Graph
     min = 0;
     max = 1000000;
 
-    float denom = log10(max) - log10(min);
+    double denom = log10(max) - log10(min);
     graphMultY = m_gHeight/denom;
     /*
     System.out.println("denom = " + denom + ", min=" + min + ", max=" + max
@@ -182,23 +182,23 @@ class Graph
 
     stroke(s.r, s.g, s.b);
 
-    float graphMultX = m_gWidth/s.data.size();
+    double graphMultX = m_gWidth/s.data.size();
 
     int i = 0;
     Iterator it = s.data.iterator();
-    int prev = (Integer)it.next();
-    for(int l = (Integer)it.next(); it.hasNext(); l = (Integer)it.next()) {
+    long prev = (Long)it.next();
+    for(long l = (Long)it.next(); it.hasNext(); l = (Long)it.next()) {
       /*
-      float x0 = i*graphMultX+m_gLeft;
-       float y0 = m_gBottom-((prev-s.min)*graphMultY);
-       float x1 = (i+1)*graphMultX+m_gLeft;
-       float y1 = m_gBottom-((l-s.min)*graphMultY);
+      double x0 = i*graphMultX+m_gLeft;
+       double y0 = m_gBottom-((prev-s.min)*graphMultY);
+       double x1 = (i+1)*graphMultX+m_gLeft;
+       double y1 = m_gBottom-((l-s.min)*graphMultY);
        */
 
-      float x0 = i*graphMultX+m_gLeft;
-      float y0 = m_gBottom-((log10(prev)-log10(min))*graphMultY);
-      float x1 = (i+1)*graphMultX+m_gLeft;
-      float y1 = m_gBottom-((log10(l)-log10(min))*graphMultY);
+      float x0 = (float)(i*graphMultX+m_gLeft);
+      float y0 = (float)(m_gBottom-((log10(prev)-log10(min))*graphMultY));
+      float x1 = (float)((i+1)*graphMultX+m_gLeft);
+      float y1 = (float)(m_gBottom-((log10(l)-log10(min))*graphMultY));
       line(x0, y0, x1, y1);
       i++;
       prev = l;
@@ -206,11 +206,11 @@ class Graph
   }
 }
 
-float log10 (float x) {
+double log10 (double x) {
   if (x == 0) {
     return 0;
   }
-  float rv = (log(x) / log(10));
+  double rv = (Math.log(x) / Math.log(10));
   return rv;
 }
 
