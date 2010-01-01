@@ -76,7 +76,7 @@ void showStatNums() {
   rectMode(CORNER);
   noStroke();
   fill(bgcolor);
-  rect(40, 410, 800, 70);
+  rect(40, 410, 800, stats.length * 30);
   fill(0);
 
   int textY = 430;
