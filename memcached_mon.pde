@@ -15,15 +15,13 @@ int gBoxH = 400;
 color bgcolor = color(0xbb, 0xbb, 0xbb);
 
 Graph graph = new Graph(gBoxX, gBoxY, gBoxW, gBoxH);
-Stat getCmds = new Stat("cmd_get", 0, 255, 0, new RingBuffer(128));
-Stat setCmds = new Stat("cmd_set", 255, 0, 0, new RingBuffer(128));
 
 Stat stats[] = {
-  getCmds, setCmds};
+  new Stat("gets", "cmd_get", 0, 255, 0, new RingBuffer(128)),
+  new Stat("sets", "cmd_set", 255, 0, 0, new RingBuffer(128))
+};
 
 PFont  g_font;
-
-double x = 0;
 
 Random rand = new Random();
 MemcachedClient client = null;
@@ -47,10 +45,12 @@ void setup()
   strokeWeight(2);
 
   // Visual indicators of stat nums.
-  stroke(0, 255, 0);     
-  line(20, 425, 35, 425);
-  stroke(255, 0, 0);     
-  line(20, 455, 35, 455);
+  int strokeY = 425;
+  for(int i = 0; i < stats.length; i++) {
+      stroke(stats[i].r, stats[i].g, stats[i].b);
+      line(20, strokeY, 35, strokeY);
+      strokeY += 30;
+  }
 
   processStats(false);
   showStatNums();
@@ -65,8 +65,9 @@ void draw()
   graph.drawBox();
 
   strokeWeight(1.5);
-  graph.drawLine(getCmds);
-  graph.drawLine(setCmds);
+  for (int i = 0; i < stats.length; i++) {
+    graph.drawLine(stats[i]);
+  }
 }
 
 void showStatNums() {
@@ -77,8 +78,13 @@ void showStatNums() {
   fill(bgcolor);
   rect(40, 410, 800, 70);
   fill(0);
-  text("gets " + getCmds.prev + " +" + getCmds.prevDelta, 40, 430);
-  text("sets " + setCmds.prev + " +" + getCmds.prevDelta, 40, 460);
+
+  int textY = 430;
+  for(int i = 0; i < stats.length; i++) {
+    text(stats[i].name + " " + stats[i].prev
+      + " +" + stats[i].prevDelta, 40, textY);
+    textY += 30;
+  }
   smooth();
 }
 
@@ -103,11 +109,13 @@ class Stat {
   int r, g, b;
   // float min = 0, max = 0;
   int prev = Integer.MIN_VALUE, prevDelta = 0;
-  String name;
+  String name, stat;
   RingBuffer data;
 
-  public Stat(String n, int rColor, int gColor, int bColor, RingBuffer d) {
+  public Stat(String n, String st, int rColor, int gColor, int bColor,
+    RingBuffer d) {
     name = n;
+    stat = st;
     r = rColor;
     g = gColor;
     b = bColor;
@@ -115,7 +123,7 @@ class Stat {
   }
 
   public void add(Map stats) {
-    int v = Integer.parseInt((String)stats.get(name));
+    int v = Integer.parseInt((String)stats.get(stat));
     if (!(data.size() == 0 && prev == Integer.MIN_VALUE)) {
       prevDelta = v - prev;
       data.add(v - prev);
