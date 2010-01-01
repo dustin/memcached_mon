@@ -5,16 +5,16 @@ import net.spy.util.RingBuffer;
 
 // Globals
 int g_winW             = 820;   // Window Width
-int g_winH             = 500;   // Window Height
+int g_winH             = 0;   // Window Height
 
 int gBoxX = 10;
-int gBoxY = 90;
+int gBoxY = 10;
 int gBoxW = 800;
 int gBoxH = 400;
 
 color bgcolor = color(0xbb, 0xbb, 0xbb);
 
-Graph graph = new Graph(gBoxX, gBoxY, gBoxW, gBoxH);
+Graph graph;
 
 Stat stats[] = {
   new Stat("gets", "cmd_get", 0, 255, 0, new RingBuffer(128)),
@@ -34,7 +34,12 @@ void setup()
   catch(Exception e) {
     throw new RuntimeException(e);
   }
+
+  g_winH = gBoxH + 10 + (stats.length * 30);
+  System.out.println("height is " + g_winH);
+
   size(g_winW, g_winH, P2D);
+  graph = new Graph(gBoxX, gBoxY, gBoxW, gBoxH);
   smooth();
   background(bgcolor);
 
@@ -45,7 +50,7 @@ void setup()
   strokeWeight(2);
 
   // Visual indicators of stat nums.
-  int strokeY = 425;
+  int strokeY = g_winH + 15 - (30 * stats.length);
   for(int i = 0; i < stats.length; i++) {
       stroke(stats[i].r, stats[i].g, stats[i].b);
       line(20, strokeY, 35, strokeY);
@@ -76,10 +81,11 @@ void showStatNums() {
   rectMode(CORNER);
   noStroke();
   fill(bgcolor);
-  rect(40, 410, 800, stats.length * 30);
+  int labelTop = g_winH - (stats.length * 30);
+  rect(40, labelTop, 800, 20 + (stats.length * 30));
   fill(0);
 
-  int textY = 430;
+  int textY = labelTop + 20;
   for(int i = 0; i < stats.length; i++) {
     text(stats[i].name + " " + stats[i].prev
       + " +" + stats[i].prevDelta, 40, textY);
@@ -146,9 +152,10 @@ class Graph
     m_gWidth     = w;
     m_gHeight    = h;
     m_gLeft      = x;
-    m_gBottom    = g_winH - y;
+    m_gBottom    = h + y;
     m_gRight     = x + w;
-    m_gTop       = g_winH - y - h;
+    m_gTop       = y;
+
     graphMultY = 1;
   }
 
@@ -157,8 +164,8 @@ class Graph
     stroke(0);
     strokeWeight(2);
     fill(255, 255, 255);
-    rectMode(CORNERS);
-    rect(m_gLeft, m_gBottom, m_gRight, m_gTop);
+    rectMode(CORNER);
+    rect(m_gLeft, m_gTop, m_gWidth, m_gHeight);
   }
 
   void setScale(Stat stats[]) {
@@ -188,17 +195,13 @@ class Graph
     Iterator it = s.data.iterator();
     long prev = (Long)it.next();
     for(long l = (Long)it.next(); it.hasNext(); l = (Long)it.next()) {
-      /*
-      double x0 = i*graphMultX+m_gLeft;
-       double y0 = m_gBottom-((prev-s.min)*graphMultY);
-       double x1 = (i+1)*graphMultX+m_gLeft;
-       double y1 = m_gBottom-((l-s.min)*graphMultY);
-       */
-
       float x0 = (float)(i*graphMultX+m_gLeft);
-      float y0 = (float)(m_gBottom-((log10(prev)-log10(min))*graphMultY));
+      float y0 = constrain((float)(m_gBottom-((log10(prev)-log10(min))*graphMultY)),
+                           m_gTop, m_gBottom+1);
       float x1 = (float)((i+1)*graphMultX+m_gLeft);
-      float y1 = (float)(m_gBottom-((log10(l)-log10(min))*graphMultY));
+      float y1 = constrain((float)(m_gBottom-((log10(l)-log10(min))*graphMultY)),
+                           m_gTop, m_gBottom+1);
+
       line(x0, y0, x1, y1);
       i++;
       prev = l;
