@@ -170,7 +170,7 @@ class Graph
 
   void setScale(Stat stats[]) {
     min = 0;
-    max = 1000000;
+    max = 10000000;
 
     double denom = log10(max) - log10(min);
     graphMultY = m_gHeight/denom;
