@@ -196,16 +196,19 @@ class Graph
     long prev = (Long)it.next();
     for(long l = (Long)it.next(); it.hasNext(); l = (Long)it.next()) {
       float x0 = (float)(i*graphMultX+m_gLeft);
-      float y0 = constrain((float)(m_gBottom-((log10(prev)-log10(min))*graphMultY)),
-                           m_gTop, m_gBottom+1);
+      float y0 = translateY(prev);
       float x1 = (float)((i+1)*graphMultX+m_gLeft);
-      float y1 = constrain((float)(m_gBottom-((log10(l)-log10(min))*graphMultY)),
-                           m_gTop, m_gBottom+1);
+      float y1 = translateY(l);
 
       line(x0, y0, x1, y1);
       i++;
       prev = l;
     }
+  }
+
+  float translateY(long input) {
+    return constrain((float)(m_gBottom-((log10(input)-log10(min))*graphMultY)),
+                           m_gTop, m_gBottom+1);
   }
 }
 
