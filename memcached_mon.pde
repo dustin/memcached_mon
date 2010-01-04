@@ -21,8 +21,9 @@ color bgcolor = color(0xbb, 0xbb, 0xbb);
 Graph graph;
 
 Stat stats[] = {
-  new Stat("gets", "cmd_get", 0, 255, 0, new RingBuffer(128)),
-  new Stat("sets", "cmd_set", 255, 0, 0, new RingBuffer(128))
+  new DeltaStat("gets", "cmd_get", 0, 255, 0, new RingBuffer(128)),
+  new DeltaStat("sets", "cmd_set", 255, 0, 0, new RingBuffer(128)),
+  // new AbsStat("items", "total_items", 0, 0, 255, new RingBuffer(128))
 };
 
 PFont  g_font;
@@ -93,8 +94,7 @@ void showStatNums() {
 
   int textY = labelTop + 20;
   for(int i = 0; i < stats.length; i++) {
-    text(stats[i].name + " " + stats[i].prev
-      + " +" + stats[i].prevDelta, 40, textY);
+    text(stats[i].getLabel(), 40, textY);
     textY += 30;
   }
   smooth();
@@ -117,10 +117,10 @@ void processStats() {
   processStats(true);
 }
 
-class Stat {
+abstract class Stat {
   int r, g, b;
   // double min = 0, max = 0;
-  long prev = Integer.MIN_VALUE, prevDelta = 0;
+  long prev = Integer.MIN_VALUE;
   String name, stat;
   RingBuffer data;
 
@@ -134,6 +134,22 @@ class Stat {
     data = d;
   }
 
+  public abstract void add(Map stats);
+
+  public String getLabel() {
+    return name + " " + prev;
+  }
+}
+
+class DeltaStat extends Stat {
+
+  long prevDelta = 0;
+
+  public DeltaStat(String n, String st, int rColor, int gColor, int bColor,
+    RingBuffer d) {
+    super(n, st, rColor, gColor, bColor, d);
+  }
+
   public void add(Map stats) {
     long v = Long.parseLong((String)stats.get(stat)) * FRAME_RATE;
     if (!(data.size() == 0 && prev == Long.MIN_VALUE)) {
@@ -141,6 +157,26 @@ class Stat {
       data.add(v - prev);
     }
     prevDelta = v - prev;
+    prev = v;
+  }
+
+  public String getLabel() {
+    return super.getLabel() + " +" + prevDelta;
+  }
+}
+
+class AbsStat extends Stat {
+
+  public AbsStat(String n, String st, int rColor, int gColor, int bColor,
+    RingBuffer d) {
+    super(n, st, rColor, gColor, bColor, d);
+  }
+
+  public void add(Map stats) {
+    long v = Long.parseLong((String)stats.get(stat));
+    if (!(data.size() == 0 && prev == Long.MIN_VALUE)) {
+      data.add(v);
+    }
     prev = v;
   }
 }
