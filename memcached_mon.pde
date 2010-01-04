@@ -12,6 +12,8 @@ int gBoxY = 10;
 int gBoxW = 800;
 int gBoxH = 400;
 
+int baseTextSize = 16;
+
 color bgcolor = color(0xbb, 0xbb, 0xbb);
 
 Graph graph;
@@ -48,6 +50,7 @@ void setup()
 
   // This draws the graph key info
   strokeWeight(2);
+  textSize(baseTextSize);
 
   // Visual indicators of stat nums.
   int strokeY = g_winH + 15 - (30 * stats.length);
@@ -76,6 +79,7 @@ void draw()
 }
 
 void showStatNums() {
+  textSize(baseTextSize);
   noSmooth();
   strokeWeight(1);
   rectMode(CORNER);
@@ -166,6 +170,24 @@ class Graph
     fill(255, 255, 255);
     rectMode(CORNER);
     rect(m_gLeft, m_gTop, m_gWidth, m_gHeight);
+    fill(0);
+    textSize(11);
+    for (int i = 1; i < max; i *= 10) {
+      float y = translateY(i);
+      line(m_gRight - 10, y, m_gRight, y);
+      text(label(i), m_gRight - 30, y - 2);
+    }
+  }
+
+  String label(long v) {
+    String label[] = {"", "K", "M", "G", "T"};
+    int om = 0;
+    long outv = v;
+    while (outv >= 1000) {
+      outv /= 1000;
+      om++;
+    }
+    return outv + label[om];
   }
 
   void setScale(Stat stats[]) {
