@@ -14,6 +14,8 @@ int gBoxH = 400;
 
 int baseTextSize = 16;
 
+static final int FRAME_RATE = 12;
+
 color bgcolor = color(0xbb, 0xbb, 0xbb);
 
 Graph graph;
@@ -64,7 +66,7 @@ void setup()
   showStatNums();
   graph.setScale(stats);
 
-  frameRate(12);
+  frameRate(FRAME_RATE);
 }
 
 void draw()
@@ -133,7 +135,7 @@ class Stat {
   }
 
   public void add(Map stats) {
-    long v = Long.parseLong((String)stats.get(stat));
+    long v = Long.parseLong((String)stats.get(stat)) * FRAME_RATE;
     if (!(data.size() == 0 && prev == Long.MIN_VALUE)) {
       prevDelta = v - prev;
       data.add(v - prev);
