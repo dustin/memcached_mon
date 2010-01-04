@@ -65,7 +65,6 @@ void setup()
 
   processStats(false);
   showStatNums();
-  graph.setScale(stats);
 
   frameRate(FRAME_RATE);
 }
@@ -73,6 +72,7 @@ void setup()
 void draw()
 {
   processStats();
+  graph.setScale(stats);
   graph.drawBox();
 
   strokeWeight(1.5);
@@ -119,8 +119,8 @@ void processStats() {
 
 abstract class Stat {
   int r, g, b;
-  // double min = 0, max = 0;
-  long prev = Integer.MIN_VALUE;
+  long max, min;
+  long prev = 0;
   String name, stat;
   RingBuffer data;
 
@@ -131,10 +131,21 @@ abstract class Stat {
     r = rColor;
     g = gColor;
     b = bColor;
+    max = 0;
+    min = 0;
     data = d;
   }
 
   public abstract void add(Map stats);
+
+  public void computeLimits() {
+    max = min = 0;
+    for(Iterator it = data.iterator(); it.hasNext(); ) {
+      Long v = (Long)it.next();
+      max = Math.max(v, max);
+      min = Math.min(v, min);
+    }
+  }
 
   public String getLabel() {
     return name + " " + prev;
@@ -144,6 +155,7 @@ abstract class Stat {
 class DeltaStat extends Stat {
 
   long prevDelta = 0;
+  boolean added = false;
 
   public DeltaStat(String n, String st, int rColor, int gColor, int bColor,
     RingBuffer d) {
@@ -152,12 +164,14 @@ class DeltaStat extends Stat {
 
   public void add(Map stats) {
     long v = Long.parseLong((String)stats.get(stat)) * FRAME_RATE;
-    if (!(data.size() == 0 && prev == Long.MIN_VALUE)) {
+    if (!(data.size() == 0 && !added)) {
       prevDelta = v - prev;
       data.add(v - prev);
     }
+    added = true;
     prevDelta = v - prev;
     prev = v;
+    computeLimits();
   }
 
   public String getLabel() {
@@ -178,6 +192,7 @@ class AbsStat extends Stat {
       data.add(v);
     }
     prev = v;
+    computeLimits();
   }
 }
 
@@ -210,7 +225,7 @@ class Graph
     rect(m_gLeft, m_gTop, m_gWidth, m_gHeight);
     fill(0);
     textSize(11);
-    for (int i = 1; i < max; i *= 10) {
+    for (long i = 1; i < max; i *= 10) {
       float y = translateY(i);
       line(m_gRight - 10, y, m_gRight, y);
       text(label(i), m_gRight - 30, y - 2);
@@ -229,21 +244,30 @@ class Graph
   }
 
   void setScale(Stat stats[]) {
-    min = 0;
-    max = 10000000;
+    min = Long.MAX_VALUE;
+    max = Long.MIN_VALUE;
+
+    for(int i = 0; i < stats.length; i++) {
+      min = Math.max(0, Math.min(stats[i].min, min));
+      max = Math.max(stats[i].max, max);
+    }
+
+    if (min == Long.MAX_VALUE) {
+      return;
+    }
+
+    max = Math.max(10, pow(10, ceil((float)log10(max))));
 
     double denom = log10(max) - log10(min);
     graphMultY = m_gHeight/denom;
-    /*
-    System.out.println("denom = " + denom + ", min=" + min + ", max=" + max
-     + " multipier = " + graphMultY);
-     */
+//    System.out.println("denom = " + denom + ", min=" + min + ", max=" + max
+//     + " multipier = " + graphMultY);
   }
 
   void drawLine(Stat s)
   {
 
-    if (s.data.size() < 2 ) {
+    if (s.data.size() < 2 || min == Long.MAX_VALUE ) {
       return;
     }
 
