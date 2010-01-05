@@ -21,9 +21,9 @@ color bgcolor = color(0xbb, 0xbb, 0xbb);
 Graph graph;
 
 Stat stats[] = {
-  new DeltaStat("gets", "cmd_get", 0, 255, 0, new RingBuffer(128)),
-  new DeltaStat("sets", "cmd_set", 255, 0, 0, new RingBuffer(128)),
-  // new AbsStat("items", "total_items", 0, 0, 255, new RingBuffer(128))
+  new DeltaStat("gets", "cmd_get", 0, 255, 0),
+  new DeltaStat("sets", "cmd_set", 255, 0, 0),
+  // new AbsStat("items", "total_items", 0, 0, 255),
 };
 
 PFont  g_font;
@@ -122,10 +122,9 @@ abstract class Stat {
   long max, min;
   long prev = 0;
   String name, stat;
-  RingBuffer data;
+  RingBuffer data = new RingBuffer(128);
 
-  public Stat(String n, String st, int rColor, int gColor, int bColor,
-    RingBuffer d) {
+  public Stat(String n, String st, int rColor, int gColor, int bColor) {
     name = n;
     stat = st;
     r = rColor;
@@ -133,7 +132,6 @@ abstract class Stat {
     b = bColor;
     max = 0;
     min = 0;
-    data = d;
   }
 
   public abstract void add(Map stats);
@@ -157,9 +155,8 @@ class DeltaStat extends Stat {
   long prevDelta = 0;
   boolean added = false;
 
-  public DeltaStat(String n, String st, int rColor, int gColor, int bColor,
-    RingBuffer d) {
-    super(n, st, rColor, gColor, bColor, d);
+  public DeltaStat(String n, String st, int rColor, int gColor, int bColor) {
+    super(n, st, rColor, gColor, bColor);
   }
 
   public void add(Map stats) {
@@ -181,9 +178,8 @@ class DeltaStat extends Stat {
 
 class AbsStat extends Stat {
 
-  public AbsStat(String n, String st, int rColor, int gColor, int bColor,
-    RingBuffer d) {
-    super(n, st, rColor, gColor, bColor, d);
+  public AbsStat(String n, String st, int rColor, int gColor, int bColor) {
+    super(n, st, rColor, gColor, bColor);
   }
 
   public void add(Map stats) {
