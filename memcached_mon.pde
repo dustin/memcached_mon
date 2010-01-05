@@ -28,7 +28,6 @@ Stat stats[] = {
 
 PFont  g_font;
 
-Random rand = new Random();
 MemcachedClient client = null;
 
 void setup()
