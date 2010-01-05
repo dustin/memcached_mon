@@ -213,16 +213,17 @@ class Graph
 
   void drawBox()
   {
-    stroke(0);
+    stroke(#555555);
     strokeWeight(2);
-    fill(255, 255, 255);
+    fill(#222222);
     rectMode(CORNER);
     rect(m_gLeft, m_gTop, m_gWidth, m_gHeight);
-    fill(0);
+    fill(#cccccc);
     textSize(11);
+    strokeWeight(1);
     for (long i = 1; i < max; i *= 10) {
       float y = translateY(i);
-      line(m_gRight - 10, y, m_gRight, y);
+      line(m_gLeft, y, m_gRight, y);
       text(label(i), m_gRight - 30, y - 2);
     }
   }
