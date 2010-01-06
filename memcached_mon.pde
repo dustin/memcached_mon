@@ -16,8 +16,7 @@ int baseTextSize = 16;
 
 static final int FRAME_RATE = 12;
 
-color bgcolor = color(0xbb, 0xbb, 0xbb);
-
+color bgcolor = 0;
 Graph graph;
 
 Stat stats[] = {
@@ -100,7 +99,7 @@ void showStatNums() {
   fill(bgcolor);
   int labelTop = g_winH - stats_height;
   rect(40, labelTop, 800, 20 + stats_height);
-  fill(0);
+  fill(#bbbbbb);
 
   int textY = labelTop + 20;
 
