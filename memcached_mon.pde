@@ -26,7 +26,11 @@ Stat stats[] = {
   // new AbsStat("items", "total_items", 0, 0, 255),
 };
 
+Stat grouped_stats[][] = groupStats(stats);
+
 PFont  g_font;
+
+int stats_height = grouped_stats.length * 30;
 
 MemcachedClient client = null;
 
@@ -39,7 +43,7 @@ void setup()
     throw new RuntimeException(e);
   }
 
-  g_winH = gBoxH + 10 + (stats.length * 30);
+  g_winH = gBoxH + 10 + stats_height;
   System.out.println("height is " + g_winH);
 
   size(g_winW, g_winH, P2D);
@@ -54,18 +58,25 @@ void setup()
   strokeWeight(2);
   textSize(baseTextSize);
 
-  // Visual indicators of stat nums.
-  int strokeY = g_winH + 15 - (30 * stats.length);
-  for(int i = 0; i < stats.length; i++) {
-      stroke(stats[i].r, stats[i].g, stats[i].b);
-      line(20, strokeY, 35, strokeY);
-      strokeY += 30;
-  }
-
   processStats(false);
   showStatNums();
 
   frameRate(FRAME_RATE);
+}
+
+Stat[][] groupStats(Stat st[]) {
+  int cols = 3;
+  int rows = ceil((float)st.length / (float)cols);
+  Stat[][] rv = new Stat[rows][cols];
+  int row = 0, col = 0;
+  for(int i = 0; i < st.length; i++) {
+    rv[row][col++] = st[i];
+    if (col >= cols) {
+      col = 0;
+      row++;
+    }
+  }
+  return rv;
 }
 
 void draw()
@@ -87,15 +98,25 @@ void showStatNums() {
   rectMode(CORNER);
   noStroke();
   fill(bgcolor);
-  int labelTop = g_winH - (stats.length * 30);
-  rect(40, labelTop, 800, 20 + (stats.length * 30));
+  int labelTop = g_winH - stats_height;
+  rect(40, labelTop, 800, 20 + stats_height);
   fill(0);
 
   int textY = labelTop + 20;
-  for(int i = 0; i < stats.length; i++) {
-    text(stats[i].getLabel(), 40, textY);
-    textY += 30;
+
+  int strokeY = g_winH + 15 - stats_height;
+  int xincr = (g_winW / grouped_stats[0].length) - 50;
+  for(int i = 0; i < grouped_stats.length; i++) {
+    int strokeX = 25;
+    for(int j = 0; j < grouped_stats[i].length && grouped_stats[i][j] != null; j++) {
+      stroke(grouped_stats[i][j].r, grouped_stats[i][j].g, grouped_stats[i][j].b);
+      line(strokeX, strokeY, strokeX + 15, strokeY);
+      text(grouped_stats[i][j].getLabel(), strokeX + 20, strokeY + 5);
+      strokeX += xincr;
+    }
+    strokeY += 30;
   }
+
   smooth();
 }
 
