@@ -33,6 +33,8 @@ int stats_height = grouped_stats.length * 30;
 
 MemcachedClient client = null;
 
+long lastStats = millis() - (1000 / FRAME_RATE);
+
 void setup()
 {
   try {
@@ -125,6 +127,7 @@ void processStats(boolean add) {
     for(int i = 0; i < stats.length; i++) {
       stats[i].add(s);
     }
+    lastStats = millis();
   }
   catch(Exception e) {
     e.printStackTrace();
@@ -186,13 +189,17 @@ class DeltaStat extends Stat {
   }
 
   protected void addVal(String val) {
-    long v = Long.parseLong(val) * FRAME_RATE;
+    double duration = millis() - lastStats;
+    if (duration < 0 ) {
+      return;
+    }
+    double factor = 1000.0 / duration;
+    long v = Long.parseLong(val);
+     prevDelta = (long)(factor * (v - prev));
     if (!(data.size() == 0 && !added)) {
-      prevDelta = v - prev;
-      data.add(v - prev);
+      data.add(prevDelta);
     }
     added = true;
-    prevDelta = v - prev;
     prev = v;
     computeLimits();
   }
