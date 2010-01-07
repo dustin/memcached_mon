@@ -153,7 +153,14 @@ abstract class Stat {
     min = 0;
   }
 
-  public abstract void add(Map stats);
+  public void add(Map stats) {
+    String s = (String)stats.get(stat);
+    if (s != null) {
+      addVal(s);
+    }
+  }
+
+  protected abstract void addVal(String val);
 
   public void computeLimits() {
     max = min = 0;
@@ -178,8 +185,8 @@ class DeltaStat extends Stat {
     super(n, st, rColor, gColor, bColor);
   }
 
-  public void add(Map stats) {
-    long v = Long.parseLong((String)stats.get(stat)) * FRAME_RATE;
+  protected void addVal(String val) {
+    long v = Long.parseLong(val) * FRAME_RATE;
     if (!(data.size() == 0 && !added)) {
       prevDelta = v - prev;
       data.add(v - prev);
@@ -201,8 +208,8 @@ class AbsStat extends Stat {
     super(n, st, rColor, gColor, bColor);
   }
 
-  public void add(Map stats) {
-    long v = Long.parseLong((String)stats.get(stat));
+  protected void addVal(String val) {
+    long v = Long.parseLong(val);
     if (!(data.size() == 0 && prev == Long.MIN_VALUE)) {
       data.add(v);
     }
