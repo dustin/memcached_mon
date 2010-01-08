@@ -9,7 +9,7 @@ int g_winH             = 0;   // Window Height
 
 int gBoxX = 10;
 int gBoxY = 10;
-int gBoxW = 800;
+int gBoxW = g_winW - 20;
 int gBoxH = 400;
 
 int baseTextSize = 16;
@@ -100,7 +100,7 @@ void showStatNums() {
   noStroke();
   fill(bgcolor);
   int labelTop = g_winH - stats_height;
-  rect(40, labelTop, 800, 20 + stats_height);
+  rect(40, labelTop, gBoxW, 20 + stats_height);
   fill(#bbbbbb);
 
   int textY = labelTop + 20;
