@@ -19,6 +19,8 @@ static final int FRAME_RATE = 12;
 color bgcolor = 0;
 Graph graph;
 
+final String address="127.0.0.1:11211";
+
 Stat stats[] = {
   new DeltaStat("gets", "cmd_get", 0, 255, 0),
   new DeltaStat("sets", "cmd_set", 255, 0, 0),
@@ -38,7 +40,7 @@ long lastStats = millis() - (1000 / FRAME_RATE);
 void setup()
 {
   try {
-    client = new MemcachedClient(AddrUtil.getAddresses("127.0.0.1:11211"));
+    client = new MemcachedClient(AddrUtil.getAddresses(address));
   } 
   catch(Exception e) {
     throw new RuntimeException(e);
