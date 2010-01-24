@@ -227,6 +227,24 @@ class AbsStat extends Stat {
   }
 }
 
+class AbsAggStat extends AbsStat {
+
+  public AbsAggStat(String n, String s, int rColor, int gColor, int bColor) {
+    super(n, s, rColor, gColor, bColor);
+  }
+
+    public void add(Map stats) {
+      long val = 0;
+      for(Iterator i = stats.entrySet().iterator(); i.hasNext();) {
+        Map.Entry me = (Map.Entry)i.next();
+        if (((String)me.getKey()).startsWith(stat)) {
+           val += Long.parseLong((String)me.getValue());
+        }
+      }
+      addVal(String.valueOf(val));
+  }
+}
+
 // This class takes the data and helps graph it
 class Graph
 {
