@@ -41,7 +41,7 @@ void setup()
 {
   try {
     client = new MemcachedClient(AddrUtil.getAddresses(address));
-  } 
+  }
   catch(Exception e) {
     throw new RuntimeException(e);
   }
